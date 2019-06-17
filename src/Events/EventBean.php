@@ -19,9 +19,16 @@ class EventBean
     private $id;
 
     /**
-     * Error occurred on Timestamp
+     * UUID
      *
      * @var string
+     */
+    private $trace_id;
+
+    /**
+     * Error occurred on Timestamp
+     *
+     * @var int
      */
     private $timestamp;
 
@@ -64,13 +71,14 @@ class EventBean
         // Generate Random UUID
         $this->id = Uuid::uuid4()->toString();
 
+        // Generate Random UUID form the trace
+        $this->trace_id = Uuid::uuid4()->toString();
+
         // Merge Initial Context
         $this->contexts = array_merge($this->contexts, $contexts);
 
         // Get UTC timestamp of Now
-        $timestamp = \DateTime::createFromFormat('U.u', sprintf('%.6F', microtime(true)));
-        $timestamp->setTimeZone(new \DateTimeZone('UTC'));
-        $this->timestamp = $timestamp->format('Y-m-d\TH:i:s.u\Z');
+        $this->timestamp =  time() * 1000000;
     }
 
     /**
@@ -84,11 +92,21 @@ class EventBean
     }
 
     /**
-     * Get the Event's Timestamp
+     * Get the trace Id
      *
      * @return string
      */
-    public function getTimestamp() : string
+    public function getTraceId() : string
+    {
+        return $this->trace_id;
+    }
+
+    /**
+     * Get the Event's Timestamp
+     *
+     * @return int
+     */
+    public function getTimestamp() : int
     {
         return $this->timestamp;
     }

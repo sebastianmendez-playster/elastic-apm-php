@@ -61,4 +61,42 @@ class Entity
             ]
       ];
     }
+    /**
+     * Get the shared Schema Skeleton
+     *
+     * @return array
+     */
+    protected function getSkeletonV2() : array
+    {
+        return [
+            'metadata' => [
+                'process' => [
+                    'pid' => getmypid(),
+                ],
+                'service' => [
+                    'name'    => $this->config->get('appName'),
+                    'version' => $this->config->get('appVersion'),
+                    'framework' => [
+                        'name' => $this->config->get('framework') ?? '',
+                        'version' => $this->config->get('frameworkVersion') ?? '',
+                    ],
+                    'language' => [
+                        'name'    => 'php',
+                        'version' => phpversion()
+                    ],
+                    'agent' => [
+                        'name'    => Agent::NAME,
+                        'version' => Agent::VERSION
+                    ],
+                    'environment' => $this->config->get('environment')
+                ],
+                'system' => [
+                    'hostname'     => $this->config->get('hostname'),
+                    'architecture' => php_uname('m'),
+                    'platform'     => php_uname('s')
+                ]
+            ]
+        ];
+    }
+
 }

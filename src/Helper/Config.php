@@ -11,7 +11,7 @@ use PhilKra\Exception\MissingAppNameException;
  */
 class Config
 {
-    const DEFAULT_APM_VERSION = 'v1';
+    const DEFAULT_APM_VERSION = 'v2';
 
     /**
      * Config Set

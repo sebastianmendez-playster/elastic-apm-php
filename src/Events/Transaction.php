@@ -161,21 +161,35 @@ class Transaction extends EventBean implements \JsonSerializable
     }
 
     /**
+     * Get the spans count from the transaction
+     *
+     * @return int
+     */
+    private function getSpansCount(): int
+    {
+        return count($this->spans);
+    }
+
+    /**
     * Serialize Transaction Event
     *
     * @return array
     */
     public function jsonSerialize() : array
     {
+        $context = $this->getContext();
+        $context['request']['cookies'] = count($context['request']['cookies']) > 1 ? $context['request']['cookies'] : null;
         return [
           'id'        => $this->getId(),
+          'trace_id'  => $this->getTraceId(),
           'timestamp' => $this->getTimestamp(),
           'name'      => $this->getTransactionName(),
           'duration'  => $this->summary['duration'],
           'type'      => $this->getMetaType(),
           'result'    => $this->getMetaResult(),
-          'context'   => $this->getContext(),
+          'context'   => $context,
           'spans'     => $this->getSpans(),
+          'span_count'=> ['started' => $this->getSpansCount()],
           'processor' => [
               'event' => 'transaction',
               'name'  => 'transaction',
