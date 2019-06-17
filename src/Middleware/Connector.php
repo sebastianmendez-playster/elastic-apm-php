@@ -101,15 +101,25 @@ class Connector
      */
     public function sendErrors(ErrorsStore $store) : bool
     {
-        $request = new Request(
-            'POST',
-            $this->getEndpoint('errors'),
-            $this->getRequestHeaders(),
-            json_encode(new Errors($this->config, $store))
-        );
+        if ($this->config->useVersion1()) {
 
-        $response = $this->client->send($request);
-        return ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300);
+            $request = new Request(
+                'POST',
+                $this->getEndpoint('errors'),
+                $this->getRequestHeaders(),
+                json_encode(new Errors($this->config, $store))
+            );
+
+            $response = $this->client->send($request);
+            return ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300);
+        }
+
+        if ($this->config->useVersion2()) {
+            return $this->sendErrorsWithVersion2($store);
+        }
+
+        throw new UnsupportedApmVersionException($this->config->apmVersion());
+
     }
 
     /**
@@ -121,12 +131,23 @@ class Connector
      */
     private function getEndpoint(string $endpoint) : string
     {
-        return sprintf(
+        $endpoint = sprintf(
             '%s/%s/%s',
             $this->config->get('serverUrl'),
             $this->config->get('apmVersion'),
             $endpoint
         );
+
+        if($this->config->useVersion2()){
+            $endpoint = sprintf(
+                '%s/%s/%s/%s',
+                $this->config->get('serverUrl'),
+                'intake',
+                $this->config->get('apmVersion'),
+                'events'
+            );
+        }
+        return $endpoint;
     }
 
     /**
@@ -138,7 +159,7 @@ class Connector
     {
         // Default Headers Set
         $headers = [
-            'Content-Type' => 'application/json',
+            'Content-Type' => 'application/x-ndjson',
             'User-Agent'   => sprintf('elasticapm-php/%s', Agent::VERSION),
         ];
 
@@ -159,12 +180,41 @@ class Connector
         // This is a hack to make the serializer produce the required v2 structure, but
         // have the connector send the transactions individually
         $transactions = json_decode(json_encode(new Transactions($this->config, $store)), true);
+
         foreach ($transactions as $transaction) {
             $request = new Request(
                 'POST',
                 $this->getEndpoint('transactions'),
                 $this->getRequestHeaders(),
-                json_encode($transaction)
+                $transaction
+            );
+
+            $response = $this->client->send($request);
+
+            // This will use the last response status, which may ok in most cases, assuming
+            // they all succeed or fail, but is not a good long term solution.
+            $success = ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300);
+        }
+
+        return $success;
+    }
+
+    private function sendErrorsWithVersion2(ErrorsStore $store): bool
+    {
+        // TODO handling of individual request failures
+        $success = true;
+
+        // TODO we should serialize individual transactions
+        // This is a hack to make the serializer produce the required v2 structure, but
+        // have the connector send the transactions individually
+        $transactions = json_decode(json_encode(new Errors($this->config, $store)), true);
+
+        foreach ($transactions as $transaction) {
+            $request = new Request(
+                'POST',
+                $this->getEndpoint('transactions'),
+                $this->getRequestHeaders(),
+                $transaction
             );
 
             $response = $this->client->send($request);

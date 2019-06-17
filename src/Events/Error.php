@@ -37,10 +37,12 @@ class Error extends EventBean implements \JsonSerializable
      */
     public function jsonSerialize() : array
     {
+        $context = $this->getContext();
+        $context['request']['cookies'] = count($context['request']['cookies']) > 1 ? $context['request']['cookies'] : null;
         return [
             'id'        => $this->getId(),
             'timestamp' => $this->getTimestamp(),
-            'context'   => $this->getContext(),
+            'context'   => $context,
             'culprit'   => sprintf('%s:%d', $this->throwable->getFile(), $this->throwable->getLine()),
             'exception' => [
                 'message'    => $this->throwable->getMessage(),

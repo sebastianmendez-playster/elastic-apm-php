@@ -58,12 +58,12 @@ class Transactions extends Entity implements \JsonSerializable
 
         $transactionData = json_decode(json_encode($this->store), true);
 
-        $encodedTransactions = [];
+        $encodedTransactions =  json_encode($this->getSkeletonV2()).PHP_EOL;
 
         foreach ($transactionData as $transaction) {
-            $encodedTransactions[] = array_merge($this->getSkeleton(), $transaction);
+            $encodedTransactions .= json_encode(['transaction' => $transaction]).PHP_EOL;
         }
 
-        return $encodedTransactions;
+        return [$encodedTransactions];
     }
 }
