@@ -1,5 +1,5 @@
 {
-    "name" : "philkra/elastic-apm-php",
+    "name" : "jomedia/elastic-apm-php",
     "description": "A php agent for Elastic APM",
     "license": "MIT",
     "require" : {
