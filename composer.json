@@ -1,5 +1,5 @@
 {
-    "name" : "jomedia/elastic-apm-php",
+    "name" : "jomedia/elastic-apm-php-agent",
     "description": "A php agent for Elastic APM",
     "license": "MIT",
     "require" : {
