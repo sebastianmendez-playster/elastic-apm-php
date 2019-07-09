@@ -208,14 +208,14 @@ class EventBean
      * @link https://github.com/philkra/elastic-apm-php-agent/issues/30
      * @link https://github.com/philkra/elastic-apm-php-agent/issues/54
      *
-     * @return array
+     * @return string
      */
-    final protected function getCookies() : array
+    final protected function getCookies() : string
     {
         $cookieMask = $this->contexts['cookies'];
         return empty($cookieMask)
-            ? $_COOKIE
-            : array_intersect_key($_COOKIE, array_flip($cookieMask));
+            ? json_encode($_COOKIE)
+            : json_encode(array_intersect_key($_COOKIE, array_flip($cookieMask)));
     }
 
     /**
