@@ -251,6 +251,17 @@ class EventBean
         if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER) === true) {
             $remote_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
+        //decoding token into a json string
+        $search = $_SERVER['QUERY_STRING'];
+        $queries = array();
+        parse_str($_SERVER['QUERY_STRING'], $queries);
+
+        if(array_key_exists('token', $queries)){
+            $parts = explode('.', $queries['token']);
+            list($headb64, $bodyb64, $cryptob64) = $parts;
+            $search = JWT::urlsafeB64Decode($bodyb64);
+        }
+
         $context         = [
             'request' => [
                 'http_version' => substr($SERVER_PROTOCOL, strpos($SERVER_PROTOCOL, '/')),
@@ -265,8 +276,8 @@ class EventBean
                     'hostname' => $_SERVER['SERVER_NAME'] ?? '',
                     'port'     => $_SERVER['SERVER_PORT'] ?? '',
                     'pathname' => $_SERVER['SCRIPT_NAME'] ?? '',
-                    'search'   => '?' . (($_SERVER['QUERY_STRING'] ?? '') ?? ''),
-                    'full' => isset($_SERVER['HTTP_HOST']) ? $http_or_https . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] : '',
+                    'search'   => (($search ?? '') ?? ''),
+                    'full' => isset($_SERVER['HTTP_HOST']) ? $http_or_https . '://' . $_SERVER['HTTP_HOST'] . substr($_SERVER['REQUEST_URI'],0, 800) : '',
                 ],
                 'headers' => [
                     'user-agent' => $headers['User-Agent'] ?? '',
