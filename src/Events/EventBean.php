@@ -2,6 +2,7 @@
 
 namespace PhilKra\Events;
 
+use Firebase\JWT\JWT;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -255,11 +256,13 @@ class EventBean
         $search = $_SERVER['QUERY_STRING'];
         $queries = array();
         parse_str($_SERVER['QUERY_STRING'], $queries);
-
         if(array_key_exists('token', $queries)){
             $parts = explode('.', $queries['token']);
             list($headb64, $bodyb64, $cryptob64) = $parts;
-            $search = JWT::urlsafeB64Decode($bodyb64);
+            $queries['token'] = 'TOKEN-REPLACED';
+            $search = http_build_query($queries, '');
+            $token = (array) JWT::jsonDecode(JWT::urlsafeB64Decode($bodyb64));
+            $this->setCustomContext(['token' => $token]);
         }
 
         $context         = [
@@ -276,8 +279,8 @@ class EventBean
                     'hostname' => $_SERVER['SERVER_NAME'] ?? '',
                     'port'     => $_SERVER['SERVER_PORT'] ?? '',
                     'pathname' => $_SERVER['SCRIPT_NAME'] ?? '',
-                    'search'   => (($search ?? '') ?? ''),
-                    'full' => isset($_SERVER['HTTP_HOST']) ? $http_or_https . '://' . $_SERVER['HTTP_HOST'] . substr($_SERVER['REQUEST_URI'],0, 800) : '',
+                    'search'   => '?'.(($search ?? '') ?? ''),
+                    'full' => isset($_SERVER['HTTP_HOST']) ? $http_or_https . '://' . $_SERVER['HTTP_HOST']. '?' . substr($search,0, 800) : '',
                 ],
                 'headers' => [
                     'user-agent' => $headers['User-Agent'] ?? '',
@@ -285,7 +288,7 @@ class EventBean
                 ],
                 'env' => (object)$this->getEnv(),
                 'cookies' => (object)$this->getCookies(),
-            ]
+            ],
         ];
 
         // Add User Context
