@@ -187,7 +187,7 @@ class Transaction extends EventBean implements \JsonSerializable
           'id'        => $this->getId(),
           'trace_id'  => $this->getTraceId(),
           'timestamp' => $this->getTimestamp(),
-          'name'      => substr($name, 0, $transactionNameLenght),
+          'name'      => $name,
           'duration'  => $this->summary['duration'],
           'type'      => $this->getMetaType(),
           'result'    => $this->getMetaResult(),
