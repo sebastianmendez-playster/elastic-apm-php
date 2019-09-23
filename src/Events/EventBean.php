@@ -67,13 +67,13 @@ class EventBean
      *
      * @param array $contexts
      */
-    public function __construct(array $contexts)
+    public function __construct(array $contexts, $traceId = null)
     {
         // Generate Random UUID
         $this->id = Uuid::uuid4()->toString();
 
         // Generate Random UUID form the trace
-        $this->trace_id = Uuid::uuid4()->toString();
+        $this->trace_id = is_null($traceId) ? Uuid::uuid4()->toString(): $traceId;
 
         // Merge Initial Context
         $this->contexts = array_merge($this->contexts, $contexts);

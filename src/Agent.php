@@ -129,11 +129,11 @@ class Agent
      *
      * @return Transaction
      */
-    public function startTransaction(string $name, array $context = [], float $start = null): Transaction
+    public function startTransaction(string $name, array $context = [], float $start = null, $transactionTraceId = null): Transaction
     {
         // Create and Store Transaction
         $this->transactionsStore->register(
-            $this->eventFactory->createTransaction($name, array_replace_recursive($this->sharedContext, $context), $start)
+            $this->eventFactory->createTransaction($name, array_replace_recursive($this->sharedContext, $context), $start, $transactionTraceId)
         );
 
         // Start the Transaction

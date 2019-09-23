@@ -20,5 +20,5 @@ interface EventFactoryInterface
      * @param string $name
      * @param array  $contexts
      */
-    public function createTransaction(string $name, array $contexts, float $start = null): Transaction;
+    public function createTransaction(string $name, array $contexts, float $start = null, $transactionTraceId = null): Transaction;
 }

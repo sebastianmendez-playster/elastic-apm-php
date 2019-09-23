@@ -58,9 +58,9 @@ class Transaction extends EventBean implements \JsonSerializable
     * @param string $name
     * @param array $contexts
     */
-    public function __construct(string $name, array $contexts, $start = null)
+    public function __construct(string $name, array $contexts, $start = null, $transactionTraceId = null )
     {
-        parent::__construct($contexts);
+        parent::__construct($contexts, $transactionTraceId);
         $this->setTransactionName($name);
         $this->timer = new Timer($start);
     }
@@ -178,12 +178,16 @@ class Transaction extends EventBean implements \JsonSerializable
     public function jsonSerialize() : array
     {
         $context = $this->getContext();
+        $name = $this->getTransactionName();
+        $transactionNameLenght = strrpos($name, '?') === false ?
+            1023 : strrpos($this->getTransactionName(), '?');
+        $name = substr($name, 0, $transactionNameLenght);
 
         return [
           'id'        => $this->getId(),
           'trace_id'  => $this->getTraceId(),
           'timestamp' => $this->getTimestamp(),
-          'name'      => $this->getTransactionName(),
+          'name'      => substr($name, 0, $transactionNameLenght),
           'duration'  => $this->summary['duration'],
           'type'      => $this->getMetaType(),
           'result'    => $this->getMetaResult(),
