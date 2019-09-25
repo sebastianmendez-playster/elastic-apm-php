@@ -179,9 +179,9 @@ class Transaction extends EventBean implements \JsonSerializable
     {
         $context = $this->getContext();
         $name = $this->getTransactionName();
-        $transactionNameLenght = strrpos($name, '?') === false ?
+        $transactionNameLength = strrpos($name, '?') === false ?
             1023 : strrpos($this->getTransactionName(), '?');
-        $name = substr($name, 0, $transactionNameLenght);
+        $name = substr($name, 0, $transactionNameLength);
 
         return [
           'id'        => $this->getId(),
