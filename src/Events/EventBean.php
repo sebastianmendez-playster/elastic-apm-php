@@ -279,7 +279,7 @@ class EventBean
                     'hostname' => $_SERVER['SERVER_NAME'] ?? '',
                     'port'     => $_SERVER['SERVER_PORT'] ?? '',
                     'pathname' => $_SERVER['SCRIPT_NAME'] ?? '',
-                    'search'   => '?'.(($search ?? '') ?? ''),
+                    'search'   => '?'.((substr($search,0, 1000) ?? '') ?? ''),
                     'full' => isset($_SERVER['HTTP_HOST']) ? $http_or_https . '://' . $_SERVER['HTTP_HOST']. '?' . substr($search,0, 800) : '',
                 ],
                 'headers' => [
